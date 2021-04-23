@@ -23,6 +23,8 @@ const {
 
 
 const DATACENTER = `https://api.nexmo.com`
+const NUMBER_TO_CALL = ``
+
 
 const voiceEvent = async (req, res, next) => {
     const { logger, csClient } = req.nexmo;
@@ -43,7 +45,7 @@ const voiceAnswer = async (req, res, next) => {
     logger.info("req", { req_body: req.body })
     const connectAction = {
         "action": "connect",
-        "from": "447700900554",
+        "from": `${NUMBER_TO_CALL}`,
         "endpoint": [
             {
                 "type": "phone",
