@@ -45,11 +45,11 @@ const voiceAnswer = async (req, res, next) => {
     logger.info("req", { req_body: req.body })
     const connectAction = {
         "action": "connect",
-        "from": `${NUMBER_TO_CALL}`,
+        "from": `${config.phone_number}`,
         "endpoint": [
             {
                 "type": "phone",
-                "number": `${req.body.to}`,
+                "number": `${NUMBER_TO_CALL}`,
                 "onAnswer": {
                     "url": `${config.server_url}/api/ncco2`
                 }
@@ -61,27 +61,12 @@ const voiceAnswer = async (req, res, next) => {
 
 
         return res.json([
-            {
-                "action": "talk",
-                "text": `Hello , This Is an NCCO Demo`
-            },
-            {
-                "action": "talk",
-                text: `Your number is ${req.body.from.split("").join(" ")}`
-            },
-            {
-                "action": "talk",
-                text: `And you are colling the number ${req.body.to.split("").join(" ")}`
-            },
-            {
-                "action": "talk",
-                text: `Have a nice day, now we are gonna hangup`
-            }
+            connectAction
         ])
 
     } catch (err) {
 
-        logger.error("Error on voiceAnswer function")
+        logger.error("Error on voiceAnswer function", { err})
     }
 
 }
@@ -104,6 +89,61 @@ const route = (app, express) => {
         ])
 
     })
+
+    app.get('/api/token/:username', async (req, res) => {
+        const {
+            logger,
+            csClient,
+            storageClient,
+            generateUserToken,
+            config
+        } = req.nexmo;
+
+        // logger.error({ user }, "STORAGE")
+        const { username } = req.params;
+
+        res.json({
+            username,
+            token: generateUserToken(username)
+        })
+
+    })
+
+    app.get('/api/info', async (req, res) => {
+        const {
+            logger,
+            csClient,
+            storageClient,
+            config
+        } = req.nexmo;
+
+        // logger.error({ user }, "STORAGE")
+        res.json({
+            config
+        })
+
+    })
+
+    app.get('/api/users', async (req, res) => {
+        const {
+            logger,
+            csClient,
+            storageClient,
+            config
+        } = req.nexmo;
+
+        const resGetUsers = await csClient({
+            url: `${DATACENTER}/v0.3/users`,
+            method: "get"
+        })
+
+        // logger.error({ user }, "STORAGE")
+        res.json({
+            users: resGetUsers.data
+        })
+
+    })
+
 }
 
 
